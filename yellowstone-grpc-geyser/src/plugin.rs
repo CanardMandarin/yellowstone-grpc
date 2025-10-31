@@ -178,6 +178,18 @@ impl GeyserPlugin for Plugin {
                 ReplicaAccountInfoVersions::V0_0_3(info) => info,
             };
 
+            if let Some(transaction) = account.txn {
+                let owner_in_transaction = transaction
+                    .message()
+                    .account_keys()
+                    .iter()
+                    .any(|address| address.as_ref() == account.owner);
+
+                if !owner_in_transaction {
+                    return Ok(());
+                }
+            }
+
             if is_startup {
                 if let Some(channel) = inner.snapshot_channel.lock().unwrap().as_ref() {
                     let message =
